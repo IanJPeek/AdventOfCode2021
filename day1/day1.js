@@ -13,7 +13,7 @@ const increaseCounter = arr => {
   }
   return count;
 };
-const count = increaseCounter(splitInput);
+const count = increaseCounter(splitAssist);
 console.log("increase count", count);
 // pt. 1 = 1754
 
@@ -26,7 +26,7 @@ const threeTotaller = arr => {
     const num4 = arr[Number(index) + 3];
     const threeTotal = num1 + num2 + num3;
     const nextThreeTotal = num2 + num3 + num4;
-    
+
     // if next three nums in array are greater than immediate three nums in array, increment count
     if (nextThreeTotal > threeTotal) {
       sumCount++;
