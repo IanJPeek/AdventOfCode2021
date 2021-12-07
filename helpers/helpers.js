@@ -8,6 +8,7 @@ const sampler = (arr, sampleSize = 20) => {
 };
 
 const totaller = numArr => {
+  numArr = numArr.map(num => Number(num))
   let total = 0;
   for (let num of numArr) {
     total += num;

@@ -188,3 +188,4 @@ const callNumbers = callArr => {
     }
 };
 callNumbers(bingoCalls); // pt. 1 = 54275   // pt. 2: 13158
+

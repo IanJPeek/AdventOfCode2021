@@ -117,5 +117,5 @@ const O2Decimal = parseInt(O2string, 2);
 const CO2Decimal = parseInt(CO2string, 2);
 const gasProduct = O2Decimal * CO2Decimal
 
-console.log("\nO2:", O2Decimal, "CO2:", CO2Decimal);
-console.log("gasProduct", gasProduct) // pt.2 = 1007985
+// console.log("\nO2:", O2Decimal, "CO2:", CO2Decimal);
+console.log({ gasProduct, O2Decimal}) // pt.2 = 1007985
