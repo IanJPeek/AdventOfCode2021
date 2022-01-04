@@ -1,5 +1,5 @@
 const { input, test } = require("./input");
-let { totaller, coordinator } = require("../helpers/helpers");
+let { totaller, coordinator, printMap } = require("../helpers/helpers");
 let splitTest = test.split("\n");
 let splitInput = input.split("\n");
 // console.log("starting", { splitTest });
@@ -20,11 +20,9 @@ const inputParser = splitArr => {
 };
 splitTest = inputParser(splitTest);
 splitInput = inputParser(splitInput);
-// console.log(splitTest)
 
 let gridmap = coordinator(splitInput); // returns lookup object with value at each (x,y) co-ord:
 // {(0,0) : 2, (1,0) : 3, (2,0) : 4, (0,1) : 5, (0,2) : 6 }
-// console.log("gridmap from helper:", coordinator(splitTest))
 
 /**
  * Creates lookup obj with co-ordinate value + all (orthogonal) neighbour values
@@ -82,7 +80,8 @@ const findNeighbours = arr2D => {
   return neighbours;
 };
 // let neighbours = findNeighbours(splitInput)
-let neighbours = findNeighbours(splitTest);
+let neighbours = findNeighbours(splitTest); // should update to use parameter! 
+// (currently updates gridmap, irrespective of parameter...) 
 // console.log("neighbours", neighbours);
 
 /**
@@ -117,26 +116,8 @@ console.log({ allRisks });
 console.log("total risk of lowpoints:", totaller(allRisks));
 // pt. 1 = 478
 
-// helper function to display map
-const printMap = gridmap => {
-  const mapLines = [];
-  for (let row of gridmap) {
-    let rowString = "";
-    for (let value of row) {
-      if (value !== 9) {
-        rowString = rowString + value;
-      } else {
-        rowString = rowString + "-";
-      }
-    }
-    mapLines.push([rowString]);
-    // console.log(rowString)  // prints map if uncommented
-  }
-  return mapLines;
-};
-const mapPrint = printMap(splitTest);
-// console.log({ mapPrint });
-
+// helper function optionally displays map:
+// printMap(splitTest)
 
 // Pt 2
 
