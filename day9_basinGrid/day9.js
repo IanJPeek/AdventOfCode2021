@@ -22,7 +22,7 @@ splitTest = inputParser(splitTest);
 splitInput = inputParser(splitInput);
 // console.log(splitTest)
 
-let gridmap = coordinator(splitTest); // returns lookup object with value at each (x,y) co-ord:
+let gridmap = coordinator(splitInput); // returns lookup object with value at each (x,y) co-ord:
 // {(0,0) : 2, (1,0) : 3, (2,0) : 4, (0,1) : 5, (0,2) : 6 }
 // console.log("gridmap from helper:", coordinator(splitTest))
 
@@ -40,6 +40,7 @@ const findNeighbours = arr2D => {
 
     neighbours[coords] = { value: gridmap[coords] }; // {(0,1) : {value: 3}}
     allNeighbours = []; // holds values of orthogonal neighbours {(0,1) : [5,7,3,0]}
+    neighbourCoords = [];
 
     let [x, y] = coords.split(","); // ["(0" , "1)"]
     x = x.slice(1); // take number after "(" bracket
@@ -49,6 +50,7 @@ const findNeighbours = arr2D => {
     if (gridmap[`(${(x - 1).toString()},${y})`] !== undefined) {
       // populate value for 'left' (+ allNeigh[])
       neighbours[coords]["left"] = gridmap[`(${(x - 1).toString()},${y})`];
+      neighbourCoords.push(`(${(x - 1).toString()},${y})`);
       allNeighbours.push(neighbours[coords]["left"]);
     }
 
@@ -56,12 +58,14 @@ const findNeighbours = arr2D => {
       // populate 'right' (+ allNeigh[])
       neighbours[coords]["right"] =
         gridmap[`(${(Number(x) + 1).toString()},${y})`];
+      neighbourCoords.push(`(${(Number(x) + 1).toString()},${y})`);
       allNeighbours.push(neighbours[coords]["right"]);
     }
 
     if (gridmap[`(${x},${(y - 1).toString()})`] !== undefined) {
       // populate 'above' (+ allNeigh[])
       neighbours[coords]["above"] = gridmap[`(${x},${(y - 1).toString()})`];
+      neighbourCoords.push(`(${x},${(y - 1).toString()})`);
       allNeighbours.push(neighbours[coords]["above"]); //
     }
 
@@ -69,15 +73,17 @@ const findNeighbours = arr2D => {
       // populate 'below' (+ allNeigh[])
       neighbours[coords]["below"] =
         gridmap[`(${x},${(Number(y) + 1).toString()})`];
+      neighbourCoords.push(`(${x},${(Number(y) + 1).toString()})`);
       allNeighbours.push(neighbours[coords]["below"]);
     }
     neighbours[coords]["allNeighbours"] = allNeighbours; // add populated "allNeighbours" key/ value
+    neighbours[coords]["neighbourCoords"] = neighbourCoords;
   }
   return neighbours;
 };
 // let neighbours = findNeighbours(splitInput)
 let neighbours = findNeighbours(splitTest);
-// console.log("neighbours", neighbours); 
+// console.log("neighbours", neighbours);
 
 /**
  * identifies lowPoints + assigns RISK values[] (RISK @co-ords where all neighbours are >= co-ord value)
@@ -85,7 +91,7 @@ let neighbours = findNeighbours(splitTest);
  */
 const riskIdentifier = neighbours => {
   let allRisks = [];
-  let lowPoints = []
+  let lowPoints = [];
   for (let coord in neighbours) {
     let coordData = neighbours[coord];
     let { value, allNeighbours } = coordData;
@@ -107,11 +113,11 @@ const riskIdentifier = neighbours => {
 };
 const [allRisks, lowPoints] = riskIdentifier(neighbours);
 console.log({ lowPoints });
-console.log({allRisks})
-console.log("total risk of lowpoints:", totaller(allRisks))
+console.log({ allRisks });
+console.log("total risk of lowpoints:", totaller(allRisks));
 // pt. 1 = 478
 
-
+// helper function to display map
 const printMap = gridmap => {
   const mapLines = [];
   for (let row of gridmap) {
@@ -129,7 +135,67 @@ const printMap = gridmap => {
   return mapLines;
 };
 const mapPrint = printMap(splitTest);
-console.log({mapPrint})
+// console.log({ mapPrint });
 
-// repeat - identify all neighbours, scrub low (current) values
-// each lowPoint forms it's own basin
+
+// Pt 2
+
+// finds next neighbours, based on neighbours of current basinPoint, updates basin with values from current (recursive) step
+const expandBasin = (newNeighbours, basin) => {
+  let nextNeighbours = [];
+  for (let coord of newNeighbours) {
+    let newNeighbourCoords = neighbours[coord]["neighbourCoords"];
+
+    for (let coord of newNeighbourCoords) {
+      if (neighbours[coord]["value"] !== 9) {
+        if (!basin.includes(coord)) {
+          basin.push(coord);
+          nextNeighbours.push(coord);
+        }
+      }
+    }
+  }
+  return nextNeighbours
+};
+
+const findBasinSize = (lowPoint) => {
+  let basin = [lowPoint]; // array of co-ords forming basin []
+  let newNeighbours = [];
+
+  let neighbourCoords = neighbours[lowPoint]["neighbourCoords"];
+
+  for (let coord of neighbourCoords) {
+    if (neighbours[coord]["value"] !== 9) {
+      basin.push(coord);
+      newNeighbours.push(coord); // next values to check for expansion
+    }
+  }
+
+  // recursive step ...
+  while (newNeighbours.length > 0) {
+    newNeighbours = expandBasin(newNeighbours, basin)
+  }
+
+  return basin.length
+};
+
+
+const findAllBasonSizes = (lowPoints) => {
+  const basinSizes = []
+
+  for (let low of lowPoints){
+    basinSizes.push(findBasinSize(low))
+  }
+  return basinSizes
+}
+const basinSizes = findAllBasonSizes(lowPoints)
+
+basinSizes.sort(function(a, b) {
+  return b - a;
+});
+console.log({ basinSizes });
+
+const maxThreeProduct = basinSizes[0] * basinSizes[1] * basinSizes[2];
+console.log({maxThreeProduct});
+
+// pt 2 answer: 1327014
